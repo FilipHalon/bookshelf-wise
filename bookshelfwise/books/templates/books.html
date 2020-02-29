@@ -1,0 +1,35 @@
+{% extends 'index.html' %}
+
+{% block title %}
+    Books
+{% endblock %}
+
+{% block body %}
+    <table>
+        <thead>
+            <tr>
+                <th>Cover</th>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Publication Date</th>
+                <th>ISBN</th>
+                <th>Number of pages</th>
+                <th>Language</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for book in books %}
+                <tr>
+                    <td>{{ book.link_to_cover }}</td>
+                    <td>{{ book.title }}</td>
+                    <td>{{ book.author }}</td>
+                    <td>{{ book.publication_date }}</td>
+                    <td>{{ book.isbn }}</td>
+                    <td>{{ book.num_of_pages }}</td>
+                    <td>{{ book.link_to_cover }}</td>
+                    <td>{{ book.publication_lang }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
