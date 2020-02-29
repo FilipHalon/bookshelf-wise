@@ -39,7 +39,7 @@ DJANGO_APPS = [
 ]
 
 PROJECT_APPS = [
-
+    'books'
 ]
 
 INSTALLED_APPS = DJANGO_APPS + PROJECT_APPS
