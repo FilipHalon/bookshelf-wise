@@ -4,9 +4,15 @@ from django.db import models
 class Author(models.Model):
     name = models.CharField(max_length=128)
 
+    def __str__(self):
+        return self.name
+
 
 class ISBN(models.Model):
     number = models.CharField(max_length=32, unique=True)
+
+    def __str__(self):
+        return self.number
 
 
 class Book(models.Model):
@@ -17,6 +23,9 @@ class Book(models.Model):
     num_of_pages = models.IntegerField()
     link_to_cover = models.URLField(blank=True)
     publication_lang = models.CharField(max_length=32)
+
+    def __str__(self):
+        return self.title
 
     # class Meta:
     #     constraints = [
