@@ -5,6 +5,20 @@
 {% endblock %}
 
 {% block body %}
+    <form method="GET">
+        <h3>Search by</h3>
+        <label for="title-input">title: </label>
+        <input id="title-input" type="text" name="title">
+        <label for="author-input">author: </label>
+        <input id="author-input" type="text" name="author">
+        <label for="language-input">language: </label>
+        <input id="language-input" type="text" name="language">
+        <label for="from-input">from: </label>
+        <input id="from-input" type="date" name="from">
+        <label for="to-input">to: </label>
+        <input id="to-input" type="date" name="to">
+        <button type="submit">Search</button>
+    </form>
     <table>
         <thead>
             <tr>
