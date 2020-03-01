@@ -2,6 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+          crossorigin="anonymous">
+    <style>
+        .container-fluid {
+            overflow-y: hidden;
+        }
+    </style>
     <title>
     {% block title %}
         Welcome to Bookshelf-wise
@@ -9,8 +18,18 @@
     </title>
 </head>
 <body>
-    {% block body %}
+    <header class="sticky-top">
+        <nav class="navbar navbar-expand-lg bg-light">
+            <a class="navbar-brand" href="">Bookshelf-wise</a>
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link active" href="">Browse</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main class="container-fluid bg-muted">
+        {% block body %}
 
-    {% endblock %}
+        {% endblock %}
+    </main>
 </body>
 </html>

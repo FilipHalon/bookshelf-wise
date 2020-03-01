@@ -10,8 +10,8 @@ class DateInput(forms.DateInput):
 
 class BookFilter(django_filters.FilterSet):
     author = django_filters.CharFilter(lookup_expr='name__icontains')
-    from_date = django_filters.DateFilter(widget=DateInput, field_name='publication_date', lookup_expr="gte")
-    to_date = django_filters.DateFilter(widget=DateInput, field_name='publication_date', lookup_expr="lte")
+    from_date = django_filters.DateFilter(widget=DateInput, field_name='publication_date', lookup_expr="gte", label="from: ")
+    to_date = django_filters.DateFilter(widget=DateInput, field_name='publication_date', lookup_expr="lte", label="to: ")
 
     class Meta:
         model = Book

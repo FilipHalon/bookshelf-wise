@@ -5,60 +5,63 @@
 {% endblock %}
 
 {% block body %}
-    <h3>Filter results</h3>
-    <form method="GET">
-        {{ filter.form.as_p }}
-{#        <label for="title-input">title: </label>#}
-{#        <input id="title-input" type="text" name="title">#}
-{#        <label for="author-input">author: </label>#}
-{#        <input id="author-input" type="text" name="author">#}
-{#        <label for="lang-input">language: </label>#}
-{#        <input id="lang-input" type="text" name="publication_lang">#}
-{#        <label for="from-input">from: </label>#}
-{#        <input id="from-input" type="date" name="from">#}
-{#        <label for="to-input">to: </label>#}
-{#        <input id="to-input" type="date" name="to">#}
-        <button type="submit">Search</button>
-    </form>
-    <table>
-        <thead>
-            <tr>
-                <th>Cover</th>
-                <th>Title</th>
-                <th>Author</th>
-                <th>Publication Date</th>
-                <th>ISBN</th>
-                <th>Number of pages</th>
-                <th>Language</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for book in books %}
+    <div class="container">
+        <h3>Filter results</h3>
+        <form method="GET">
+            {{ filter.form.as_p }}
+    {#        <label for="title-input">title: </label>#}
+    {#        <input id="title-input" type="text" name="title">#}
+    {#        <label for="author-input">author: </label>#}
+    {#        <input id="author-input" type="text" name="author">#}
+    {#        <label for="lang-input">language: </label>#}
+    {#        <input id="lang-input" type="text" name="publication_lang">#}
+    {#        <label for="from-input">from: </label>#}
+    {#        <input id="from-input" type="date" name="from">#}
+    {#        <label for="to-input">to: </label>#}
+    {#        <input id="to-input" type="date" name="to">#}
+            <button class="btn btn-outline-dark" type="submit">Search</button>
+        </form>
+    </div>
+    <div class="container mt-3">
+        <table class="table table-dark table-bordered table-hover text-center">
+            <thead class="thead-light">
                 <tr>
-                    <td>{{ book.link_to_cover }}</td>
-                    <td>{{ book.title }}</td>
-                    <td>
-                        {% for author in book.author.all %}
-                            {{ author.name }}
-                            {% if not forloop.last %}
-                                ,
-                            {% endif %}
-                        {% endfor %}
-                    </td>
-                    <td>{{ book.publication_date }}</td>
-                    <td>
-                        {% for isbn in book.isbn.all %}
-                            {{ isbn.number }}
-                            {% if not forloop.last %}
-                                ,
-                            {% endif %}
-                        {% endfor %}
-                    </td>
-                    <td>{{ book.num_of_pages }}</td>
-                    <td>{{ book.link_to_cover }}</td>
-                    <td>{{ book.publication_lang }}</td>
+                    <th>Cover</th>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Publication Date</th>
+                    <th>ISBN</th>
+                    <th>Number of pages</th>
+                    <th>Language</th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for book in books %}
+                    <tr>
+                        <td>{{ book.link_to_cover }}</td>
+                        <td>{{ book.title }}</td>
+                        <td>
+                            {% for author in book.author.all %}
+                                {{ author.name }}
+                                {% if not forloop.last %}
+                                    ,
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>{{ book.publication_date }}</td>
+                        <td>
+                            {% for isbn in book.isbn.all %}
+                                {{ isbn.number }}
+                                {% if not forloop.last %}
+                                    ,
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>{{ book.num_of_pages }}</td>
+                        <td>{{ book.publication_lang }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 {% endblock %}
