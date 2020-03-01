@@ -22,7 +22,7 @@ class Book(models.Model):
     isbn = models.ManyToManyField(ISBN)
     num_of_pages = models.IntegerField()
     link_to_cover = models.URLField(blank=True)
-    publication_lang = models.CharField(max_length=32)
+    publication_lang = models.CharField(max_length=32, verbose_name="publication language")
 
     def __str__(self):
         return self.title
