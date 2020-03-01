@@ -1,0 +1,13 @@
+{% extends 'index.html' %}
+
+{% block title %}
+    Update to books
+{% endblock %}
+
+{% block body %}
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Submit</button>
+    </form>
+{% endblock %}
