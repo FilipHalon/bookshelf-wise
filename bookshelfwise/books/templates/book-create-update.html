@@ -1,5 +1,16 @@
 {% extends 'index.html' %}
 
+{% block script %}
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const authorInput = document.getElementById("id_author");
+            authorInput.value = '';
+            const isbnInput = document.getElementById("id_isbn");
+            isbnInput.value = '';
+        })
+    </script>
+{% endblock %}
+
 {% block title %}
     Update to books
 {% endblock %}
