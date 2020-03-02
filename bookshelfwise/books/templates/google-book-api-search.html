@@ -1,0 +1,14 @@
+{% extends 'index.html' %}
+
+{% block title %}
+    Google Book API Search
+{% endblock %}
+
+{% block body %}
+    <form method="GET">
+        <label for="search-phrase">
+            <input type="text">
+            <button type="submit">Search</button>
+        </label>
+    </form>
+{% endblock %}

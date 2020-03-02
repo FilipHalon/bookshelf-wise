@@ -1,4 +1,6 @@
 from django.http import HttpResponseRedirect
+from django.shortcuts import render
+from django.views import View
 from django.views.generic.detail import SingleObjectTemplateResponseMixin
 from django.views.generic.edit import ModelFormMixin, ProcessFormView
 from django_filters.views import FilterView
@@ -59,3 +61,8 @@ class BookCreateUpdate(SingleObjectTemplateResponseMixin, ModelFormMixin, Proces
         self.object.author.set(author_list)
         self.object.isbn.set(isbn_list)
         return HttpResponseRedirect(self.get_success_url())
+
+
+class GoogleBookAPISearch(View):
+    def get(self, request):
+        return render(request, 'google-book-api-search.html')
