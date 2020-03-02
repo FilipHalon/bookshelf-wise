@@ -4,7 +4,7 @@ from django.views.generic.edit import ModelFormMixin, ProcessFormView
 from django_filters.views import FilterView
 
 from books.filters import BookFilter
-from books.forms import BookAddEditForm
+from books.forms import BookCreateUpdateForm
 from books.models import Book, Author, ISBN
 
 
@@ -20,7 +20,7 @@ class BookCreateUpdate(SingleObjectTemplateResponseMixin, ModelFormMixin, Proces
     model = Book
     template_name = 'book-create-update.html'
     success_url = '/books'
-    form_class = BookAddEditForm
+    form_class = BookCreateUpdateForm
 
     def get_object(self, queryset=None):
         try:
@@ -59,3 +59,12 @@ class BookCreateUpdate(SingleObjectTemplateResponseMixin, ModelFormMixin, Proces
         self.object.author.set(author_list)
         self.object.isbn.set(isbn_list)
         return HttpResponseRedirect(self.get_success_url())
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        instance = kwargs['instance']
+        if instance:
+            instance.author.set('')
+            instance.isbn.set('')
+            kwargs['instance'] = instance
+        return kwargs
