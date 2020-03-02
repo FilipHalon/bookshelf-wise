@@ -4,10 +4,12 @@ from django.views import View
 from django.views.generic.detail import SingleObjectTemplateResponseMixin
 from django.views.generic.edit import ModelFormMixin, ProcessFormView
 from django_filters.views import FilterView
+from rest_framework import generics, filters
 
 from books.filters import BookFilter
 from books.forms import BookCreateUpdateForm
 from books.models import Book, Author, ISBN
+from books.serializers import BookSerializer
 
 
 class BookList(FilterView):
@@ -66,3 +68,10 @@ class BookCreateUpdate(SingleObjectTemplateResponseMixin, ModelFormMixin, Proces
 class GoogleBookAPISearch(View):
     def get(self, request):
         return render(request, 'google-book-api-search.html')
+
+
+class BookAPIList(generics.ListAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['title', 'author__name', 'publication_date', 'isbn__number', 'num_of_pages', 'publication_lang']
