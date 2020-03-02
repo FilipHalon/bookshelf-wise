@@ -1,11 +1,11 @@
-from django.views.generic import UpdateView
+from django.http import HttpResponseRedirect
 from django.views.generic.detail import SingleObjectTemplateResponseMixin
 from django.views.generic.edit import ModelFormMixin, ProcessFormView
 from django_filters.views import FilterView
 
 from books.filters import BookFilter
 from books.forms import BookAddEditForm
-from books.models import Book
+from books.models import Book, Author, ISBN
 
 
 class BookList(FilterView):
@@ -15,7 +15,7 @@ class BookList(FilterView):
     paginate_by = 40
 
 
-# many thanks to https://stackoverflow.com/questions/17192737/django-class-based-view-for-both-create-and-update
+# great many thanks for get, post and get_object to https://stackoverflow.com/questions/17192737/django-class-based-view-for-both-create-and-update
 class BookCreateUpdate(SingleObjectTemplateResponseMixin, ModelFormMixin, ProcessFormView):
     model = Book
     template_name = 'book-create-update.html'
@@ -35,3 +35,27 @@ class BookCreateUpdate(SingleObjectTemplateResponseMixin, ModelFormMixin, Proces
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         return super().post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        data = self.request.POST.copy()
+        authors = ''.join(data.get("author")).split(', ')
+        author_list = []
+        for author in authors:
+            new_author = Author.objects.get_or_create(name=author)[0]
+            author_list.append(new_author)
+        isbns = ''.join(data.get("isbn")).split(', ')
+        isbn_list = []
+        for isbn in isbns:
+            new_isbn = ISBN.objects.get_or_create(number=isbn)[0]
+            isbn_list.append(new_isbn)
+        if not self.object:
+            self.object = Book()
+        self.object.title = data.get("title")
+        self.object.publication_date = data.get("publication_date")
+        self.object.num_of_pages = data.get("num_of_pages")
+        self.object.link_to_cover = data.get("link_to_cover")
+        self.object.publication_lang = data.get("publication_lang")
+        self.object.save()
+        self.object.author.set(author_list)
+        self.object.isbn.set(isbn_list)
+        return HttpResponseRedirect(self.get_success_url())
