@@ -59,12 +59,3 @@ class BookCreateUpdate(SingleObjectTemplateResponseMixin, ModelFormMixin, Proces
         self.object.author.set(author_list)
         self.object.isbn.set(isbn_list)
         return HttpResponseRedirect(self.get_success_url())
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        instance = kwargs['instance']
-        if instance:
-            instance.author.set('')
-            instance.isbn.set('')
-            kwargs['instance'] = instance
-        return kwargs
