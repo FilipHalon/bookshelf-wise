@@ -37,7 +37,8 @@ DJANGO_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_filters',
-    'widget_tweaks'
+    'widget_tweaks',
+    'rest_framework',
 ]
 
 PROJECT_APPS = [
