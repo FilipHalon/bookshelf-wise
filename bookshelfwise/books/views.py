@@ -74,27 +74,32 @@ class GoogleBookAPISearch(View):
 
     def post(self, request):
         url = "https://www.googleapis.com/books/v1/volumes"
-        print(request.POST)
-        # q = request.GET.get("search-phrase")
-        # if q:
-        #     params = {'q': q, 'fields': "items(volumeInfo(title, authors, publishedDate, industryIdentifiers(identifier), pageCount, language, imageLinks(smallThumbnail)))"}
-        #     resp = requests.get(url, params=params)
-        #     volumes = resp.json()['items']
-        #     for volume in volumes:
-        #         volume_info = volume["volumeInfo"]
-        #         authors = volume_info.pop("authors")
-        #         author_list = [{'name': author} for author in authors]
-        #         volume_info['author'] = author_list
-        #         volume_info['publication_date'] = volume_info.pop("publishedDate")
-        #         isbns = volume_info.pop("industryIdentifiers")
-        #         isbn_list = [{'number': identifier['identifier']} for identifier in isbns]
-        #         volume_info['isbn'] = isbn_list
-        #         volume_info['num_of_pages'] = volume_info.pop("pageCount")
-        #         volume_info['link_to_cover'] = volume_info.pop("imageLinks")["smallThumbnail"]
-        #         volume_info["publication_lang"] = volume_info.pop("language")
-        #         serializer = BookSerializer(data=volume_info)
-        #         if serializer.is_valid():
-        #             serializer.save()
+        form = GoogleBookAPISearchForm(request.POST)
+        if form.is_valid():
+            cleaned_data = form.cleaned_data
+            q = cleaned_data.pop("q")
+            url += f"?q={q}"
+            for key, val in cleaned_data.items():
+                if val:
+                    url += f"+{key}:{val}"
+            url += "&fields=items(volumeInfo(title, authors, publishedDate, industryIdentifiers(identifier), pageCount, language, imageLinks(smallThumbnail)))"
+            resp = requests.get(url)
+            volumes = resp.json()['items']
+            for volume in volumes:
+                volume_info = volume["volumeInfo"]
+                authors = volume_info.pop("authors")
+                author_list = [{'name': author} for author in authors]
+                volume_info['author'] = author_list
+                volume_info['publication_date'] = volume_info.pop("publishedDate")
+                isbns = volume_info.pop("industryIdentifiers")
+                isbn_list = [{'number': identifier['identifier']} for identifier in isbns]
+                volume_info['isbn'] = isbn_list
+                volume_info['num_of_pages'] = volume_info.pop("pageCount")
+                volume_info['link_to_cover'] = volume_info.pop("imageLinks")["smallThumbnail"]
+                volume_info["publication_lang"] = volume_info.pop("language")
+                serializer = BookSerializer(data=volume_info)
+                if serializer.is_valid():
+                    serializer.save()
         return redirect(reverse("expand"))
 
 
