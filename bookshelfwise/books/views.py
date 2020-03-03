@@ -1,3 +1,4 @@
+import requests
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.views import View
@@ -67,6 +68,34 @@ class BookCreateUpdate(SingleObjectTemplateResponseMixin, ModelFormMixin, Proces
 
 class GoogleBookAPISearch(View):
     def get(self, request):
+        url = "https://www.googleapis.com/books/v1/volumes"
+        q = request.GET.get("search-phrase")
+        if q:
+            params = {'q': q, 'fields': "items(volumeInfo(title, authors, publishedDate, industryIdentifiers(identifier), pageCount, language, imageLinks(smallThumbnail)))"}
+            resp = requests.get(url, params=params)
+            result = resp.json()['items'][0]['volumeInfo']
+            authors = result.pop("authors")
+            author_list = [{'name': author} for author in authors]
+            # for author in authors:
+            #     author_list.append({'name': author})
+            result['author'] = author_list
+            result['publication_date'] = result.pop("publishedDate")
+            isbns = result.pop("industryIdentifiers")
+            isbn_list = [{'number': identifier['identifier']} for identifier in isbns]
+            # for identifier in isbns:
+            #     isbn_list.append({'number': identifier['identifier']})
+            result['isbn'] = isbn_list
+            result['num_of_pages'] = result.pop("pageCount")
+            result['link_to_cover'] = result.pop("imageLinks")["smallThumbnail"]
+            result["publication_lang"] = result.pop("language")
+            print(type(result))
+            serializer = BookSerializer(data=result)
+            if serializer.is_valid():
+                serializer.save()
+                print(serializer)
+            else:
+                print(serializer.errors)
+                print("not valid")
         return render(request, 'google-book-api-search.html')
 
 
