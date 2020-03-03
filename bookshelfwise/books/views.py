@@ -1,4 +1,8 @@
+import operator
+from functools import reduce
+
 import requests
+from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
@@ -108,3 +112,15 @@ class BookAPIList(generics.ListAPIView):
     serializer_class = BookSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['title', 'author__name', 'publication_date', 'isbn__number', 'num_of_pages', 'publication_lang']
+
+    def filter_queryset(self, queryset):
+        print(self.request.query_params)
+        query_params = self.request.query_params
+        if 'title' in query_params and queryset:
+            # many thank for the solution to https://stackoverflow.com/questions/4824759/django-query-using-contains-each-value-in-a-list
+            queryset = Book.objects.filter(reduce(operator.or_, (Q(title__icontains=phrase) for phrase in query_params['title'])))
+        if 'author' in query_params and queryset:
+            queryset = Book.objects.filter(reduce(operator.or_, (Q(author__name__icontains=phrase) for phrase in query_params['author'])))
+        if 'isbn' in query_params and queryset:
+            queryset = Book.objects.filter(reduce(operator.or_, (Q(isbn__number__icontains=phrase) for phrase in query_params['isbn'])))
+        return super().filter_queryset(queryset)
