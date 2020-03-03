@@ -20,8 +20,8 @@ from books.views import BookList, BookCreateUpdate, GoogleBookAPISearch, BookAPI
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/list', BookAPIList.as_view()),
     re_path(r'books/', BookList.as_view()),
     re_path(r'update/(?P<pk>\d+)?', BookCreateUpdate.as_view()),
     path('expand/', GoogleBookAPISearch.as_view(), name="expand"),
-    path('api/books', BookAPIList.as_view()),
 ]
