@@ -73,29 +73,22 @@ class GoogleBookAPISearch(View):
         if q:
             params = {'q': q, 'fields': "items(volumeInfo(title, authors, publishedDate, industryIdentifiers(identifier), pageCount, language, imageLinks(smallThumbnail)))"}
             resp = requests.get(url, params=params)
-            result = resp.json()['items'][0]['volumeInfo']
-            authors = result.pop("authors")
-            author_list = [{'name': author} for author in authors]
-            # for author in authors:
-            #     author_list.append({'name': author})
-            result['author'] = author_list
-            result['publication_date'] = result.pop("publishedDate")
-            isbns = result.pop("industryIdentifiers")
-            isbn_list = [{'number': identifier['identifier']} for identifier in isbns]
-            # for identifier in isbns:
-            #     isbn_list.append({'number': identifier['identifier']})
-            result['isbn'] = isbn_list
-            result['num_of_pages'] = result.pop("pageCount")
-            result['link_to_cover'] = result.pop("imageLinks")["smallThumbnail"]
-            result["publication_lang"] = result.pop("language")
-            print(result)
-            serializer = BookSerializer(data=result)
-            if serializer.is_valid():
-                serializer.save()
-                print(serializer)
-            else:
-                print(serializer.errors)
-                print("not valid")
+            volumes = resp.json()['items']
+            for volume in volumes:
+                volume_info = volume["volumeInfo"]
+                authors = volume_info.pop("authors")
+                author_list = [{'name': author} for author in authors]
+                volume_info['author'] = author_list
+                volume_info['publication_date'] = volume_info.pop("publishedDate")
+                isbns = volume_info.pop("industryIdentifiers")
+                isbn_list = [{'number': identifier['identifier']} for identifier in isbns]
+                volume_info['isbn'] = isbn_list
+                volume_info['num_of_pages'] = volume_info.pop("pageCount")
+                volume_info['link_to_cover'] = volume_info.pop("imageLinks")["smallThumbnail"]
+                volume_info["publication_lang"] = volume_info.pop("language")
+                serializer = BookSerializer(data=volume_info)
+                if serializer.is_valid():
+                    serializer.save()
         return render(request, 'google-book-api-search.html')
 
 
