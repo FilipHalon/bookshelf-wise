@@ -9,7 +9,7 @@ class Author(models.Model):
 
 
 class ISBN(models.Model):
-    number = models.CharField(max_length=32, unique=True)
+    number = models.CharField(max_length=32)
 
     def __str__(self):
         return self.number

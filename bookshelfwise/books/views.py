@@ -88,7 +88,7 @@ class GoogleBookAPISearch(View):
             result['num_of_pages'] = result.pop("pageCount")
             result['link_to_cover'] = result.pop("imageLinks")["smallThumbnail"]
             result["publication_lang"] = result.pop("language")
-            print(type(result))
+            print(result)
             serializer = BookSerializer(data=result)
             if serializer.is_valid():
                 serializer.save()
