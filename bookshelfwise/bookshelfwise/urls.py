@@ -22,6 +22,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     re_path(r'books/', BookList.as_view()),
     re_path(r'update/(?P<pk>\d+)?', BookCreateUpdate.as_view()),
-    path('import/', GoogleBookAPISearch.as_view()),
+    path('expand/', GoogleBookAPISearch.as_view(), name="expand"),
     path('api/books', BookAPIList.as_view()),
 ]
