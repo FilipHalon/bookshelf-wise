@@ -6,9 +6,11 @@
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             const authorInput = document.getElementById("id_author");
-            authorInput.value = '';
+            const authors = authorInput.value.match(/\s(?:\w+\s*\w*)/g);
+            authorInput.value = authors.join();
             const isbnInput = document.getElementById("id_isbn");
-            isbnInput.value = '';
+            const isbns = isbnInput.value.match(/\s(?:\w+\s*\w*)/g);
+            isbnInput.value = isbns.join()
         })
     </script>
 {% endblock %}

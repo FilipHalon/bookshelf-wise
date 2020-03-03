@@ -8,6 +8,8 @@ class DateTypeInput(forms.DateInput):
 
 
 class BookCreateUpdateForm(forms.ModelForm):
+    author = forms.CharField(max_length=128)
+    isbn = forms.CharField(max_length=32)
 
     class Meta:
         model = Book
