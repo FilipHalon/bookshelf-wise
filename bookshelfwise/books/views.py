@@ -9,7 +9,7 @@ from django_filters.views import FilterView
 from rest_framework import generics, filters
 
 from books.filters import BookFilter
-from books.forms import BookCreateUpdateForm
+from books.forms import BookCreateUpdateForm, GoogleBookAPISearchForm
 from books.models import Book, Author, ISBN
 from books.serializers import BookSerializer
 
@@ -69,8 +69,8 @@ class BookCreateUpdate(SingleObjectTemplateResponseMixin, ModelFormMixin, Proces
 
 class GoogleBookAPISearch(View):
     def get(self, request):
-
-        return render(request, 'google-book-api-search.html')
+        form = GoogleBookAPISearchForm()
+        return render(request, 'google-book-api-search.html', {'form': form})
 
     def post(self, request):
         # url = "https://www.googleapis.com/books/v1/volumes"
