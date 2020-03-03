@@ -20,7 +20,7 @@ class BookCreateUpdateForm(forms.ModelForm):
 
 
 class GoogleBookAPISearchForm(forms.Form):
-    q = forms.CharField(max_length=128, required=True, label="Search phrase*", help_text="Browse through the API as you would do in any Google search.")
-    intitle = forms.CharField(max_length=128, label="Title")
-    inauthor = forms.CharField(max_length=128, label="Author")
-    isbn = forms.CharField(max_length=32, label="ISBN")
+    q = forms.CharField(max_length=128, label="Search phrase*", help_text="Browse through the API as you would do in any Google search.")
+    intitle = forms.CharField(max_length=128, required=False, label="Title")
+    inauthor = forms.CharField(max_length=128, required=False, label="Author")
+    isbn = forms.CharField(max_length=32, required=False, label="ISBN")

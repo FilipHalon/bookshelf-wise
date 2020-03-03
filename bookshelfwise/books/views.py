@@ -73,7 +73,8 @@ class GoogleBookAPISearch(View):
         return render(request, 'google-book-api-search.html', {'form': form})
 
     def post(self, request):
-        # url = "https://www.googleapis.com/books/v1/volumes"
+        url = "https://www.googleapis.com/books/v1/volumes"
+        print(request.POST)
         # q = request.GET.get("search-phrase")
         # if q:
         #     params = {'q': q, 'fields': "items(volumeInfo(title, authors, publishedDate, industryIdentifiers(identifier), pageCount, language, imageLinks(smallThumbnail)))"}
