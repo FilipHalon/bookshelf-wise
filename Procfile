@@ -1,2 +1,2 @@
 release: python manage.py migrate
-web: gunicorn bookshelf-wise.wsgi --log-file -
+web: gunicorn bookshelfwise.wsgi --log-file -
