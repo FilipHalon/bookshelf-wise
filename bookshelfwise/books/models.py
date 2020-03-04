@@ -5,14 +5,14 @@ class Author(models.Model):
     name = models.CharField(max_length=128)
 
     def __str__(self):
-        return self.name
+        return f"{self.name}"
 
 
 class ISBN(models.Model):
     number = models.CharField(max_length=32)
 
     def __str__(self):
-        return self.number
+        return f"{self.number}"
 
 
 class Book(models.Model):
@@ -25,7 +25,7 @@ class Book(models.Model):
     publication_lang = models.CharField(max_length=32, verbose_name="publication language")
 
     def __str__(self):
-        return self.title
+        return f"{self.title}"
 
     # class Meta:
     #     constraints = [
