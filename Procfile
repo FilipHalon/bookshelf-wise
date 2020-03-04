@@ -1,3 +1,2 @@
-cd bookshelfwise
-release: python manage.py migrate
-web: gunicorn bookshelfwise.wsgi:application --log-file -
+release: python ./bookshelfwise/manage.py migrate
+web: gunicorn --pythonpath bookshelfwise bookshelfwise.wsgi
