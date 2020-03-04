@@ -33,6 +33,7 @@ class CreateOneInstanceEachTests(TestCase):
 class RequestFactoryTests(CreateOneInstanceEachTests):
     def setUp(self):
         super().setUp()
+        self.factory = RequestFactory()
 
 
 class BookListRequestTypeTestCase(TestCase):
