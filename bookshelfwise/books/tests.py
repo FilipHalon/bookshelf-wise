@@ -3,6 +3,7 @@ from django.test import TestCase, Client, TransactionTestCase, RequestFactory
 from rest_framework.test import APIClient
 
 from books.models import Book, Author, ISBN
+from books.views import BookList
 
 example_book_attrs = {
             "title": "Unique_Book_Title",
@@ -61,8 +62,16 @@ class BookListRequestTypeTestCase(TestCase):
         self.assertEqual(r.status_code, 405)
 
 
-class BookListViewTestCase(BookListRequestTypeTestCase):
+class BookListViewTestCase(RequestFactoryTests):
+    c = Client()
+    url = "/books/"
     filter_params = ["title__icontains", "publication_lang", "author", "from_date", "to_date"]
+
+    def test_context_object_name_books(self):
+        req = self.factory.get(self.url)
+        view = BookList()
+        view.setup(req)
+        self.assertIn('books', view.context_object_name)
 
 
 class BookModelsTestCase(TransactionTestCase):
@@ -91,6 +100,11 @@ class BookModelsTestCase(TransactionTestCase):
 class BookListEndpointTestCase(BookListRequestTypeTestCase):
     c = APIClient()
     url = "/api/books"
+    # filter_params = ['title', 'author', 'isbn']
+    #
+    # def test_filter_params_full_phrase_find_object(self):
+    #     r = self.c.get(self.url, {"title": "unique"})
+    #     print(r.context)
 
 
 class BookListEndpointViewTestCase(RequestFactoryTests):
