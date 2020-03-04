@@ -1,5 +1,5 @@
 from django.db import DataError
-from django.test import TestCase, Client, TransactionTestCase
+from django.test import TestCase, Client, TransactionTestCase, RequestFactory
 from rest_framework.test import APIClient
 
 from books.models import Book, Author, ISBN
@@ -16,30 +16,28 @@ example_author_attrs = {"name": "Unique_Book_Author"}
 example_isbn_attrs = {"number": "1A2S3D4F5G6H"}
 
 
-def create_model_instance_each(self):
-    self.book = Book.objects.create(**example_book_attrs)
-    self.isbn = ISBN.objects.create(**example_isbn_attrs)
-    self.author = Author.objects.create(**example_author_attrs)
-    self.book.author.add(self.author)
-    self.book.isbn.add(self.isbn)
+class CreateOneInstanceEachTests(TestCase):
+    def setUp(self):
+        self.book = Book.objects.create(**example_book_attrs)
+        self.isbn = ISBN.objects.create(**example_isbn_attrs)
+        self.author = Author.objects.create(**example_author_attrs)
+        self.book.author.add(self.author)
+        self.book.isbn.add(self.isbn)
+
+    def tearDown(self):
+        self.book.delete()
+        self.isbn.delete()
+        self.author.delete()
 
 
-def delete_model_instances(self):
-    self.book.delete()
-    self.isbn.delete()
-    self.author.delete()
+class RequestFactoryTests(CreateOneInstanceEachTests):
+    def setUp(self):
+        super().setUp()
 
 
 class BookListRequestTypeTestCase(TestCase):
     c = Client()
     url = "/books/"
-    filter_params = ["title__icontains", "publication_lang", "author", "from_date", "to_date"]
-
-    def setUp(self):
-        create_model_instance_each(self)
-
-    def tearDown(self):
-        delete_model_instances(self)
 
     def test_get_request_no_params_code_200(self):
         r = self.c.get(self.url)
@@ -62,15 +60,12 @@ class BookListRequestTypeTestCase(TestCase):
         self.assertEqual(r.status_code, 405)
 
 
-class BookListViewTestCase(TestCase):
-    pass
+class BookListViewTestCase(BookListRequestTypeTestCase):
+    filter_params = ["title__icontains", "publication_lang", "author", "from_date", "to_date"]
 
 
 class BookModelsTestCase(TransactionTestCase):
     def setUp(self):
-        # self.book = Book.objects.create(**self.book_attrs)
-        # self.author = Author.objects.create(name="Author")
-        # self.isbn = ISBN.objects.create(number="1234567890")
         self.book = Book(**example_book_attrs)
         self.author = Author(**example_author_attrs)
         self.isbn = ISBN(**example_isbn_attrs)
@@ -78,8 +73,6 @@ class BookModelsTestCase(TransactionTestCase):
     def tearDown(self):
         if self.book.pk:
             self.book.delete()
-        # self.author.delete()
-        # self.isbn.delete()
 
     def test_book_title_char_length_data_error(self):
         self.book.title = "a" * 257
@@ -97,6 +90,9 @@ class BookModelsTestCase(TransactionTestCase):
 class BookListEndpointTestCase(BookListRequestTypeTestCase):
     c = APIClient()
     url = "/api/books"
+
+
+class BookListEndpointViewTestCase(RequestFactoryTests):
     filter_params = ['title', 'author', 'isbn']
     search_param = "search"
 
