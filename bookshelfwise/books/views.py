@@ -36,32 +36,22 @@ class BookCreateUpdate(SingleObjectTemplateResponseMixin, ModelFormMixin, Proces
     success_url = '/books'
     form_class = BookCreateUpdateForm
 
-    def get_object(self, queryset=None):
-        try:
-            return super().get_object()
-        except AttributeError:
-            return None
+    @staticmethod
+    def get_id_list(data, model_name):
+        form_input_list = ''.join(data.get(model_name)).split(', ')
+        id_list = []
+        for item in form_input_list:
+            new_obj = ""
+            if model_name == "author":
+                new_obj = Author.objects.get_or_create(name=item)[0]
+            elif model_name == "isbn":
+                new_obj = ISBN.objects.get_or_create(number=item)[0]
+            id_list.append(new_obj)
+        return id_list
 
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        return super().get(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        return super().post(request, *args, **kwargs)
-
-    def form_valid(self, form):
-        data = self.request.POST.copy()
-        authors = ''.join(data.get("author")).split(', ')
-        author_list = []
-        for author in authors:
-            new_author = Author.objects.get_or_create(name=author)[0]
-            author_list.append(new_author)
-        isbns = ''.join(data.get("isbn")).split(', ')
-        isbn_list = []
-        for isbn in isbns:
-            new_isbn = ISBN.objects.get_or_create(number=isbn)[0]
-            isbn_list.append(new_isbn)
+    def create_or_update_object(self, data):
+        author_list = self.get_id_list(data, "author")
+        isbn_list = self.get_id_list(data, "isbn")
         if not self.object:
             self.object = Book()
         self.object.title = data.get("title")
@@ -72,7 +62,25 @@ class BookCreateUpdate(SingleObjectTemplateResponseMixin, ModelFormMixin, Proces
         self.object.save()
         self.object.author.set(author_list)
         self.object.isbn.set(isbn_list)
+
+    def get_object(self, queryset=None):
+        try:
+            return super().get_object()
+        except AttributeError:
+            return None
+
+    def form_valid(self, form):
+        data = self.request.POST.copy()
+        self.create_or_update_object(data)
         return HttpResponseRedirect(self.get_success_url())
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super().post(request, *args, **kwargs)
 
 
 class GoogleBookAPISearch(View):
