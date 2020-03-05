@@ -39,22 +39,9 @@ class BookCreateUpdate(
     success_url = "/books"
     form_class = BookCreateUpdateForm
 
-    @staticmethod
-    def get_id_list(data, model_name):
-        form_input_list = "".join(data.get(model_name)).split(", ")
-        id_list = []
-        for item in form_input_list:
-            new_obj = ""
-            if model_name == "author":
-                new_obj = Author.objects.get_or_create(name=item)[0]
-            elif model_name == "isbn":
-                new_obj = ISBN.objects.get_or_create(number=item)[0]
-            id_list.append(new_obj)
-        return id_list
-
     def create_or_update_object(self, data):
-        author_list = self.get_id_list(data, "author")
-        isbn_list = self.get_id_list(data, "isbn")
+        author_list = Book.get_m2m_id_list("filter_form", data, "author")
+        isbn_list = Book.get_m2m_id_list("filter_form", data, "isbn")
         if not self.object:
             self.object = Book()
         self.object.title = data.get("title")
@@ -118,8 +105,10 @@ class GoogleBookAPISearch(View):
         for key, val in cleaned_data.items():
             if val:
                 url += f"+{key}:{val}"
-        url += "&fields=items(volumeInfo(title, authors, publishedDate," \
-               " industryIdentifiers(identifier), pageCount, language, imageLinks(smallThumbnail)))"
+        url += (
+            "&fields=items(volumeInfo(title, authors, publishedDate,"
+            " industryIdentifiers(identifier), pageCount, language, imageLinks(smallThumbnail)))"
+        )
         return url
 
     def get(self, request):

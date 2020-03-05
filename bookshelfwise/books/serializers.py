@@ -24,16 +24,8 @@ class BookSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     def create(self, validated_data):
-        authors = validated_data.pop("author")
-        author_list = []
-        for author in authors:
-            pk = Author.objects.get_or_create(name=author["name"])[0].id
-            author_list.append(pk)
-        isbns = validated_data.pop("isbn")
-        isbn_list = []
-        for isbn in isbns:
-            pk = ISBN.objects.get_or_create(number=isbn["number"])[0].id
-            isbn_list.append(pk)
+        author_list = Book.get_m2m_id_list("serializer", validated_data, "author")
+        isbn_list = Book.get_m2m_id_list("serializer", validated_data, "isbn")
         try:
             book = Book.objects.get(
                 title=validated_data.get("title"), isbn=isbn_list[0]
