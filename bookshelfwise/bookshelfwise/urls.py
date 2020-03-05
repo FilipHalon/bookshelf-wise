@@ -16,12 +16,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, re_path
 
-from books.views import BookList, BookCreateUpdate, GoogleBookAPISearch, BookAPIList
+from books.views import BookList, BookCreateUpdate, GoogleBookAPISearch, BookAPIList, index
 
 urlpatterns = [
+    path("", index, name="index"),
     path('admin/', admin.site.urls),
-    path('api/books', BookAPIList.as_view()),
-    re_path(r'^books/', BookList.as_view()),
-    re_path(r'^update/(?P<pk>\d+)?', BookCreateUpdate.as_view()),
-    path('expand/', GoogleBookAPISearch.as_view(), name="expand"),
+    re_path(r'^books', BookList.as_view(), name="browse"),
+    re_path(r'^update/(?P<pk>\d+)?', BookCreateUpdate.as_view(), name="update"),
+    path('expand', GoogleBookAPISearch.as_view(), name="expand"),
+    path('api/books', BookAPIList.as_view(), name="api"),
 ]
