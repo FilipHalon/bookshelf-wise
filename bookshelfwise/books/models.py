@@ -22,12 +22,9 @@ class Book(models.Model):
     isbn = models.ManyToManyField(ISBN)
     num_of_pages = models.IntegerField(verbose_name="page count")
     link_to_cover = models.URLField(blank=True)
-    publication_lang = models.CharField(max_length=32, verbose_name="publication language")
+    publication_lang = models.CharField(
+        max_length=32, verbose_name="publication language"
+    )
 
     def __str__(self):
         return f"{self.title}"
-
-    # class Meta:
-    #     constraints = [
-    #         models.UniqueConstraint(fields=['title', 'author', 'isbn'], name="different_isbns")
-    #     ]

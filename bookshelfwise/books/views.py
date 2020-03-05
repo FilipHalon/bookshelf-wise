@@ -19,7 +19,7 @@ from books.serializers import BookSerializer
 
 
 def index(request):
-    return render(request, 'index.html')
+    return render(request, "index.html")
 
 
 class BookList(FilterView):
@@ -29,16 +29,19 @@ class BookList(FilterView):
     paginate_by = 10
 
 
-# great many thanks for get, post and get_object to https://stackoverflow.com/questions/17192737/django-class-based-view-for-both-create-and-update
-class BookCreateUpdate(SingleObjectTemplateResponseMixin, ModelFormMixin, ProcessFormView):
+# great many thanks for get, post and get_object to
+# https://stackoverflow.com/questions/17192737/django-class-based-view-for-both-create-and-update
+class BookCreateUpdate(
+    SingleObjectTemplateResponseMixin, ModelFormMixin, ProcessFormView
+):
     model = Book
-    template_name = 'book-create-update.html'
-    success_url = '/books'
+    template_name = "book-create-update.html"
+    success_url = "/books"
     form_class = BookCreateUpdateForm
 
     @staticmethod
     def get_id_list(data, model_name):
-        form_input_list = ''.join(data.get(model_name)).split(', ')
+        form_input_list = "".join(data.get(model_name)).split(", ")
         id_list = []
         for item in form_input_list:
             new_obj = ""
@@ -89,17 +92,19 @@ class GoogleBookAPISearch(View):
         try:
             volume_info = volume["volumeInfo"]
             authors = volume_info.pop("authors")
-            author_list = [{'name': author} for author in authors]
-            volume_info['author'] = author_list
-            volume_info['publication_date'] = volume_info.pop("publishedDate")
+            author_list = [{"name": author} for author in authors]
+            volume_info["author"] = author_list
+            volume_info["publication_date"] = volume_info.pop("publishedDate")
             isbns = volume_info.pop("industryIdentifiers")
-            isbn_list = [{'number': identifier['identifier']} for identifier in isbns]
-            volume_info['isbn'] = isbn_list
+            isbn_list = [{"number": identifier["identifier"]} for identifier in isbns]
+            volume_info["isbn"] = isbn_list
             if volume_info.get("pageCount"):
-                volume_info['num_of_pages'] = volume_info.pop("pageCount")
+                volume_info["num_of_pages"] = volume_info.pop("pageCount")
             else:
-                volume_info['num_of_pages'] = 0
-            volume_info['link_to_cover'] = volume_info.pop("imageLinks")["smallThumbnail"]
+                volume_info["num_of_pages"] = 0
+            volume_info["link_to_cover"] = volume_info.pop("imageLinks")[
+                "smallThumbnail"
+            ]
             volume_info["publication_lang"] = volume_info.pop("language")
         except KeyError:
             return None
@@ -113,12 +118,13 @@ class GoogleBookAPISearch(View):
         for key, val in cleaned_data.items():
             if val:
                 url += f"+{key}:{val}"
-        url += "&fields=items(volumeInfo(title, authors, publishedDate, industryIdentifiers(identifier), pageCount, language, imageLinks(smallThumbnail)))"
+        url += "&fields=items(volumeInfo(title, authors, publishedDate," \
+               " industryIdentifiers(identifier), pageCount, language, imageLinks(smallThumbnail)))"
         return url
 
     def get(self, request):
         form = GoogleBookAPISearchForm()
-        return render(request, 'google-book-api-search.html', {'form': form})
+        return render(request, "google-book-api-search.html", {"form": form})
 
     def post(self, request):
         form = GoogleBookAPISearchForm(request.POST)
@@ -126,7 +132,7 @@ class GoogleBookAPISearch(View):
             cleaned_data = form.cleaned_data
             url = self.construct_url(cleaned_data)
             resp = requests.get(url)
-            volumes = resp.json()['items']
+            volumes = resp.json()["items"]
             for volume in volumes:
                 volume_info = self.prepare_to_serialize(volume)
                 if volume_info:
@@ -140,16 +146,44 @@ class BookAPIList(generics.ListAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     filter_backends = [filters.SearchFilter]
-    search_fields = ['title', 'author__name', 'publication_date', 'isbn__number', 'num_of_pages', 'publication_lang']
+    search_fields = [
+        "title",
+        "author__name",
+        "publication_date",
+        "isbn__number",
+        "num_of_pages",
+        "publication_lang",
+    ]
 
     def filter_queryset(self, queryset):
-        print(self.request.query_params)
         query_params = self.request.query_params
-        if 'title' in query_params and queryset:
-            # many thank for the solution to https://stackoverflow.com/questions/4824759/django-query-using-contains-each-value-in-a-list
-            queryset = Book.objects.filter(reduce(operator.or_, (Q(title__icontains=phrase) for phrase in query_params['title'])))
-        if 'author' in query_params and queryset:
-            queryset = Book.objects.filter(reduce(operator.or_, (Q(author__name__icontains=phrase) for phrase in query_params['author'])))
-        if 'isbn' in query_params and queryset:
-            queryset = Book.objects.filter(reduce(operator.or_, (Q(isbn__number__icontains=phrase) for phrase in query_params['isbn'])))
+        if "title" in query_params and queryset:
+            # many thank for the solution to
+            # https://stackoverflow.com/questions/4824759/django-query-using-contains-each-value-in-a-list
+            queryset = Book.objects.filter(
+                reduce(
+                    operator.or_,
+                    (Q(title__icontains=phrase) for phrase in query_params["title"]),
+                )
+            )
+        if "author" in query_params and queryset:
+            queryset = Book.objects.filter(
+                reduce(
+                    operator.or_,
+                    (
+                        Q(author__name__icontains=phrase)
+                        for phrase in query_params["author"]
+                    ),
+                )
+            )
+        if "isbn" in query_params and queryset:
+            queryset = Book.objects.filter(
+                reduce(
+                    operator.or_,
+                    (
+                        Q(isbn__number__icontains=phrase)
+                        for phrase in query_params["isbn"]
+                    ),
+                )
+            )
         return super().filter_queryset(queryset)

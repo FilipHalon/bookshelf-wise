@@ -7,35 +7,58 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Author',
+            name="Author",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=128)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=128)),
             ],
         ),
         migrations.CreateModel(
-            name='ISBN',
+            name="ISBN",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('number', models.CharField(max_length=32, unique=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("number", models.CharField(max_length=32, unique=True)),
             ],
         ),
         migrations.CreateModel(
-            name='Book',
+            name="Book",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=256)),
-                ('publication_date', models.DateField()),
-                ('num_of_pages', models.IntegerField()),
-                ('link_to_cover', models.URLField(blank=True)),
-                ('publication_lang', models.CharField(max_length=32)),
-                ('author', models.ManyToManyField(to='books.Author')),
-                ('isbn', models.ManyToManyField(to='books.ISBN')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=256)),
+                ("publication_date", models.DateField()),
+                ("num_of_pages", models.IntegerField()),
+                ("link_to_cover", models.URLField(blank=True)),
+                ("publication_lang", models.CharField(max_length=32)),
+                ("author", models.ManyToManyField(to="books.Author")),
+                ("isbn", models.ManyToManyField(to="books.ISBN")),
             ],
         ),
     ]

@@ -6,18 +6,16 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('books', '0001_initial'),
+        ("books", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='book',
-            name='publication_lang',
-            field=models.CharField(max_length=32, verbose_name='publication language'),
+            model_name="book",
+            name="publication_lang",
+            field=models.CharField(max_length=32, verbose_name="publication language"),
         ),
         migrations.AlterField(
-            model_name='isbn',
-            name='number',
-            field=models.CharField(max_length=32),
+            model_name="isbn", name="number", field=models.CharField(max_length=32),
         ),
     ]
