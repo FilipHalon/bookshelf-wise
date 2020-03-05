@@ -98,7 +98,10 @@ class GoogleBookAPISearch(View):
                 isbns = volume_info.pop("industryIdentifiers")
                 isbn_list = [{'number': identifier['identifier']} for identifier in isbns]
                 volume_info['isbn'] = isbn_list
-                volume_info['num_of_pages'] = volume_info.pop("pageCount")
+                if volume_info.get("pageCount"):
+                    volume_info['num_of_pages'] = volume_info.pop("pageCount")
+                else:
+                    volume_info['num_of_pages'] = 0
                 volume_info['link_to_cover'] = volume_info.pop("imageLinks")["smallThumbnail"]
                 volume_info["publication_lang"] = volume_info.pop("language")
                 serializer = BookSerializer(data=volume_info)
