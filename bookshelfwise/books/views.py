@@ -18,11 +18,15 @@ from books.models import Book, Author, ISBN
 from books.serializers import BookSerializer
 
 
+def index(request):
+    return render(request, 'index.html')
+
+
 class BookList(FilterView):
     filterset_class = BookFilter
     template_name = "books.html"
     context_object_name = "books"
-    paginate_by = 40
+    paginate_by = 10
 
 
 # great many thanks for get, post and get_object to https://stackoverflow.com/questions/17192737/django-class-based-view-for-both-create-and-update
