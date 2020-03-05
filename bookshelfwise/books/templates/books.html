@@ -1,6 +1,5 @@
 {% extends 'index.html' %}
 
-{% load widget_tweaks %}
 
 {% block title %}
     Books
@@ -10,18 +9,11 @@
     <div class="container p-3">
         <h3>Filter records</h3>
         <form method="GET">
-            <div class="row">
-            {% for field in filter.form %}
-                <div class="form-group col-md-4">
-                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                    {{ field|add_class:"form-control" }}
-                </div>
-            {% endfor %}
-            </div>
+            {% include 'partials/form-render.html' with form=filter.form %}
             <button class="btn btn-outline-dark" type="submit">Search</button>
         </form>
     </div>
-        <table class="table table-dark table-bordered text-center m-3">
+        <table class="table table-dark table-bordered text-center">
             <thead class="thead-light">
                 <tr>
                     <th>Cover</th>

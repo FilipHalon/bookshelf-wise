@@ -20,7 +20,7 @@ class Book(models.Model):
     author = models.ManyToManyField(Author)
     publication_date = models.DateField()
     isbn = models.ManyToManyField(ISBN)
-    num_of_pages = models.IntegerField()
+    num_of_pages = models.IntegerField(verbose_name="page count")
     link_to_cover = models.URLField(blank=True)
     publication_lang = models.CharField(max_length=32, verbose_name="publication language")
 

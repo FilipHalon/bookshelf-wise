@@ -22,7 +22,7 @@ urlpatterns = [
     path("", index, name="index"),
     path('admin/', admin.site.urls),
     re_path(r'^books', BookList.as_view(), name="browse"),
-    re_path(r'^update/(?P<pk>\d+)?', BookCreateUpdate.as_view(), name="update"),
+    re_path(r'^update/(?P<pk>\d+)?', BookCreateUpdate.as_view(), name="create-update"),
     path('expand', GoogleBookAPISearch.as_view(), name="expand"),
     path('api/books', BookAPIList.as_view(), name="api"),
 ]

@@ -5,9 +5,5 @@
 {% endblock %}
 
 {% block body %}
-    <form method="POST">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Expand</button>
-    </form>
+    {% include 'partials/post-form-render.html' with form=form button_name="Expand" h3_phrase="Expand" %}
 {% endblock %}
