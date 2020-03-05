@@ -6,12 +6,12 @@ from books.models import Book, Author, ISBN
 from books.views import BookList
 
 example_book_attrs = {
-            "title": "Unique_Book_Title",
-            "publication_date": "2020-03-01",
-            "num_of_pages": 123,
-            "link_to_cover": "https://en.wikipedia.org/wiki/Book#/media/File:Liji2_no_bg.png",
-            "publication_lang": "en"
-        }
+    "title": "Unique_Book_Title",
+    "publication_date": "2020-03-01",
+    "num_of_pages": 123,
+    "link_to_cover": "https://en.wikipedia.org/wiki/Book#/media/File:Liji2_no_bg.png",
+    "publication_lang": "en",
+}
 
 example_author_attrs = {"name": "Unique_Book_Author"}
 example_isbn_attrs = {"number": "1A2S3D4F5G6H"}
@@ -46,7 +46,7 @@ class BookListRequestTypeTestCase(TestCase):
         self.assertEqual(r.status_code, 200)
 
     def test_get_request_not_filter_params_code_200(self):
-        r = self.c.get(self.url, {'param': 'param'})
+        r = self.c.get(self.url, {"param": "param"})
         self.assertEqual(r.status_code, 200)
 
     def test_post_request_status_405(self):
@@ -65,13 +65,19 @@ class BookListRequestTypeTestCase(TestCase):
 class BookListViewTestCase(RequestFactoryTests):
     c = Client()
     url = "/books/"
-    filter_params = ["title__icontains", "publication_lang", "author", "from_date", "to_date"]
+    filter_params = [
+        "title__icontains",
+        "publication_lang",
+        "author",
+        "from_date",
+        "to_date",
+    ]
 
     def test_context_object_name_books(self):
         req = self.factory.get(self.url)
         view = BookList()
         view.setup(req)
-        self.assertIn('books', view.context_object_name)
+        self.assertIn("books", view.context_object_name)
 
 
 class BookModelsTestCase(TransactionTestCase):
@@ -108,7 +114,7 @@ class BookListEndpointTestCase(BookListRequestTypeTestCase):
 
 
 class BookListEndpointViewTestCase(RequestFactoryTests):
-    filter_params = ['title', 'author', 'isbn']
+    filter_params = ["title", "author", "isbn"]
     search_param = "search"
 
     def setUp(self):
@@ -116,7 +122,7 @@ class BookListEndpointViewTestCase(RequestFactoryTests):
         self.query_params = [
             {"title": self.book.title},
             {"author": self.author.name},
-            {"isbn": self.isbn.number}
+            {"isbn": self.isbn.number},
         ]
 
     # def test_filter_params_full_phrase_find_object(self):

@@ -1,0 +1,29 @@
+nav {
+    background-color: #2C2C2C;
+}
+
+nav a {
+    color: #d6d6d6;
+}
+
+.jumbotron-expanded {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+}
+
+.jumbotron-expanded h1 {
+    font-size: 300%;
+}
+
+.background {
+    max-width: 100%;
+    min-height: 100vh;
+    position: absolute;
+    filter: grayscale(50%);
+    z-index: -1;
+    object-fit: cover;
+    overflow: hidden;
+}

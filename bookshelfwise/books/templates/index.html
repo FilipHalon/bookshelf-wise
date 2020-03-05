@@ -6,32 +6,36 @@
           href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
           crossorigin="anonymous">
-    <style>
-        .container-fluid {
-            overflow-y: hidden;
-        }
-    </style>
+    <link rel="stylesheet" href="../../static/css/style.css">
     {% block script %}
     
     {% endblock %}
     <title>
     {% block title %}
-        Welcome to Bookshelf-wise
+        Welcome to Bookshelfwise
     {% endblock %}
     </title>
 </head>
 <body>
     <header class="sticky-top">
-        <nav class="navbar navbar-expand-lg bg-light">
-            <a class="navbar-brand" href="">Bookshelf-wise</a>
-            <ul class="navbar-nav">
-                <li class="nav-item"><a class="nav-link active" href="">Browse</a></li>
-            </ul>
+        <nav class="navbar navbar-expand-lg">
+            <a class="navbar-brand" href="{% url "index" %}">Bookshelf-wise</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link active" href="{% url 'browse' %}">Browse</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="{% url 'create-update' %}">Create/Update</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="{% url 'expand' %}">Expand</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="{% url 'api' %}">API</a></li>
+                </ul>
+            </div>
         </nav>
     </header>
-    <main class="container-fluid bg-muted">
+    <main class="container-fluid p-0">
         {% block body %}
-
+            <div class="jumbotron-expanded">
+                <img class="background" src="../../static/assets/books-21849_1920-min.jpg" alt="">
+                <h1>Welcome to Bookshelfwise</h1>
+            </div>
         {% endblock %}
     </main>
 </body>

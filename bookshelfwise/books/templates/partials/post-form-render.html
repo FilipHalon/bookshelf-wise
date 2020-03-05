@@ -1,0 +1,8 @@
+<div class="container p-3">
+    <h3>{{ h3_phrase }} the bookshelf</h3>
+    <form method="POST">
+        {% csrf_token %}
+        {% include 'partials/form-render.html' with form=form %}
+        <button type="submit" class="btn btn-outline-dark">{{ button_name }}</button>
+    </form>
+</div>
