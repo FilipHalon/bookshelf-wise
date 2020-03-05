@@ -1,19 +1,27 @@
 {% extends 'index.html' %}
 
+{% load widget_tweaks %}
+
 {% block title %}
     Books
 {% endblock %}
 
 {% block body %}
-    <div class="container">
-        <h3>Filter results</h3>
+    <div class="container p-3">
+        <h3>Filter records</h3>
         <form method="GET">
-            {{ filter.form.as_p }}
+            <div class="row">
+            {% for field in filter.form %}
+                <div class="form-group col-md-4">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field|add_class:"form-control" }}
+                </div>
+            {% endfor %}
+            </div>
             <button class="btn btn-outline-dark" type="submit">Search</button>
         </form>
     </div>
-    <div class="container mt-3">
-        <table class="table table-dark table-bordered table-hover text-center">
+        <table class="table table-dark table-bordered text-center m-3">
             <thead class="thead-light">
                 <tr>
                     <th>Cover</th>
@@ -28,23 +36,17 @@
             <tbody>
                 {% for book in books %}
                     <tr>
-                        <td>{{ book.link_to_cover }}</td>
+                        <td><img src="{{ book.link_to_cover }}" alt="{{ book.title }}"></td>
                         <td>{{ book.title }}</td>
                         <td>
                             {% for author in book.author.all %}
-                                {{ author.name }}
-                                {% if not forloop.last %}
-                                    ,
-                                {% endif %}
+                                {{ author.name }}{% if not forloop.last %}, {% endif %}
                             {% endfor %}
                         </td>
                         <td>{{ book.publication_date }}</td>
                         <td>
                             {% for isbn in book.isbn.all %}
-                                {{ isbn.number }}
-                                {% if not forloop.last %}
-                                    ,
-                                {% endif %}
+                                {{ isbn.number }}{% if not forloop.last %}, {% endif %}
                             {% endfor %}
                         </td>
                         <td>{{ book.num_of_pages }}</td>
@@ -53,5 +55,4 @@
                 {% endfor %}
             </tbody>
         </table>
-    </div>
 {% endblock %}
