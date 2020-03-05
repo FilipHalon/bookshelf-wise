@@ -12,7 +12,7 @@
     {% endblock %}
     <title>
     {% block title %}
-        Welcome to Bookshelf-wise
+        Welcome to Bookshelfwise
     {% endblock %}
     </title>
 </head>
@@ -28,9 +28,12 @@
             </ul>
         </nav>
     </header>
-    <main class="container-xl">
+    <main class="container-fluid p-0">
         {% block body %}
-
+            <div class="jumbotron-expanded">
+                <img class="background" src="../../static/assets/books-21849_1920-min.jpg" alt="">
+                <h1>Welcome to Bookshelfwise</h1>
+            </div>
         {% endblock %}
     </main>
 </body>

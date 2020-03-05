@@ -6,6 +6,20 @@ nav a {
     color: #d6d6d6;
 }
 
-.container-fluid {
-    overflow-y: hidden;
+.jumbotron-expanded {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: lightblue;
+}
+
+.jumbotron-expanded h1 {
+    font-size: 4em;
+}
+
+.background {
+    position: absolute;
+    filter: grayscale(50%);
+    z-index: -1;
 }
