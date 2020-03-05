@@ -120,14 +120,15 @@ class GoogleBookAPISearch(View):
         if form.is_valid():
             cleaned_data = form.cleaned_data
             url = self.construct_url(cleaned_data)
-            resp = requests.get(url)
-            volumes = resp.json()["items"]
-            for volume in volumes:
-                volume_info = self.prepare_to_serialize(volume)
-                if volume_info:
-                    serializer = BookSerializer(data=volume_info)
-                    if serializer.is_valid():
-                        serializer.save()
+            resp = requests.get(url).json()
+            if resp:
+                volumes = resp.json()["items"]
+                for volume in volumes:
+                    volume_info = self.prepare_to_serialize(volume)
+                    if volume_info:
+                        serializer = BookSerializer(data=volume_info)
+                        if serializer.is_valid():
+                            serializer.save()
         return redirect(reverse("expand"))
 
 
