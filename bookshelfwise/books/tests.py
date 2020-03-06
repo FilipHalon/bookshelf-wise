@@ -1,9 +1,11 @@
+import copy
+import json
+
 from django.db import DataError
 from django.test import TestCase, Client, TransactionTestCase, RequestFactory
-from rest_framework.test import APIClient
 
 from books.models import Book, Author, ISBN
-from books.views import BookList
+from books.views import BookList, GoogleBookAPISearch
 
 example_book_attrs = {
     "title": "Unique_Book_Title",
@@ -17,24 +19,27 @@ example_author_attrs = {"name": "Unique_Book_Author"}
 example_isbn_attrs = {"number": "1A2S3D4F5G6H"}
 
 
-class CreateOneInstanceEachTests(TestCase):
+class BookModelsTestCase(TransactionTestCase):
     def setUp(self):
-        self.book = Book.objects.create(**example_book_attrs)
-        self.isbn = ISBN.objects.create(**example_isbn_attrs)
-        self.author = Author.objects.create(**example_author_attrs)
-        self.book.author.add(self.author)
-        self.book.isbn.add(self.isbn)
+        self.book = Book(**example_book_attrs)
+        self.author = Author(**example_author_attrs)
+        self.isbn = ISBN(**example_isbn_attrs)
 
     def tearDown(self):
-        self.book.delete()
-        self.isbn.delete()
-        self.author.delete()
+        if self.book.pk:
+            self.book.delete()
 
+    def test_book_title_char_length_data_error(self):
+        self.book.title = "a" * 257
+        self.assertRaises(DataError)
+        self.book.title = "a" * 256
+        self.assertEqual(self.book.title, "a" * 256)
 
-class RequestFactoryTests(CreateOneInstanceEachTests):
-    def setUp(self):
-        super().setUp()
-        self.factory = RequestFactory()
+    def test_book_title_not_str_no_errors(self):
+        self.book.title = 1
+        self.book.save()
+        self.assertTrue(self.book.pk)
+        self.assertTrue(self.book.__str__(), "1")
 
 
 class BookListRequestTypeTestCase(TestCase):
@@ -62,6 +67,57 @@ class BookListRequestTypeTestCase(TestCase):
         self.assertEqual(r.status_code, 405)
 
 
+class CreateOneInstanceEachTests(TestCase):
+    def setUp(self):
+        self.book = Book.objects.create(**example_book_attrs)
+        self.isbn = ISBN.objects.create(**example_isbn_attrs)
+        self.author = Author.objects.create(**example_author_attrs)
+        self.book.author.add(self.author)
+        self.book.isbn.add(self.isbn)
+
+    def tearDown(self):
+        self.book.delete()
+        self.isbn.delete()
+        self.author.delete()
+
+
+class RequestFactoryTests(CreateOneInstanceEachTests):
+    def setUp(self):
+        super().setUp()
+        self.factory = RequestFactory()
+        self.req = self.factory.get(self.url)
+
+
+class BookListEndpointContentTestCase(CreateOneInstanceEachTests):
+    c = Client()
+    url = "/api/books"
+    filter_params = ["title", "author", "isbn"]
+
+    def setUp(self):
+        super().setUp()
+        self.query_params = [
+            {"title": self.book.title},
+            {"author": self.author.name},
+            {"isbn": self.isbn.number},
+        ]
+
+    def assert_book_in_data(self, param):
+        r_full = self.c.get(self.url, param)
+        data = r_full.json()["results"][0]["id"]
+        self.assertEqual(self.book.id, data)
+
+    def test_single_filter_param_request_object_found(self):
+        for param in self.query_params:
+            self.assert_book_in_data(param)
+            for key, val in param.items():
+                partial_phrase = {key: val[:-1]}
+                self.assert_book_in_data(partial_phrase)
+                search_phrase = {"search": val}
+                self.assert_book_in_data(search_phrase)
+                partial_search_phrase = {"search": val[:-1]}
+                self.assert_book_in_data(partial_search_phrase)
+
+
 class BookListViewTestCase(RequestFactoryTests):
     c = Client()
     url = "/books/"
@@ -73,59 +129,53 @@ class BookListViewTestCase(RequestFactoryTests):
         "to_date",
     ]
 
-    def test_context_object_name_books(self):
-        req = self.factory.get(self.url)
-        view = BookList()
-        view.setup(req)
-        self.assertIn("books", view.context_object_name)
-
-
-class BookModelsTestCase(TransactionTestCase):
     def setUp(self):
-        self.book = Book(**example_book_attrs)
-        self.author = Author(**example_author_attrs)
-        self.isbn = ISBN(**example_isbn_attrs)
+        super().setUp()
+        self.view = BookList()
+        self.view.setup(self.req)
 
-    def tearDown(self):
-        if self.book.pk:
-            self.book.delete()
-
-    def test_book_title_char_length_data_error(self):
-        self.book.title = "a" * 257
-        self.assertRaises(DataError)
-        self.book.title = "a" * 256
-        self.assertEqual(self.book.title, "a" * 256)
-
-    def test_book_title_not_str_no_errors(self):
-        self.book.title = 1
-        self.book.save()
-        self.assertTrue(self.book.pk)
-        self.assertTrue(self.book.__str__(), "1")
+    def test_context_object_name_books(self):
+        self.assertIn("books", self.view.context_object_name)
 
 
-class BookListEndpointTestCase(BookListRequestTypeTestCase):
-    c = APIClient()
-    url = "/api/books"
-    # filter_params = ['title', 'author', 'isbn']
-    #
-    # def test_filter_params_full_phrase_find_object(self):
-    #     r = self.c.get(self.url, {"title": "unique"})
-    #     print(r.context)
-
-
-class BookListEndpointViewTestCase(RequestFactoryTests):
-    filter_params = ["title", "author", "isbn"]
-    search_param = "search"
+class PrepareToSerializeTestCase(RequestFactoryTests):
+    url = "/expand"
+    test_json = json.loads(
+        '{"volumeInfo": {"title": "Unique_Book_Title", '
+        '"authors": ["Unique_Book_Author"], '
+        '"publishedDate": "2020-03-01", '
+        '"industryIdentifiers": [{"identifier": "1A2S3D4F5G6H"}], '
+        '"pageCount": 123, '
+        '"imageLinks": {"smallThumbnail": "https://en.wikipedia.org/wiki/Book#/media/File:Liji2_no_bg.png"}, '
+        '"language": "en"}}'
+    )
+    keys = [
+        "title",
+        "author",
+        "publication_date",
+        "isbn",
+        "num_of_pages",
+        "link_to_cover",
+        "publication_lang",
+    ]
 
     def setUp(self):
         super().setUp()
-        self.query_params = [
-            {"title": self.book.title},
-            {"author": self.author.name},
-            {"isbn": self.isbn.number},
-        ]
+        self.view = GoogleBookAPISearch()
+        self.view.setup(self.req)
 
-    # def test_filter_params_full_phrase_find_object(self):
-    #     for param in self.query_params:
-    #         r = self.c.get(self.url, param)
-    #         print(r)
+    def test_correct_json_successful_conversion(self):
+        volume_info = self.view.prepare_to_serialize(self.test_json)
+        self.assertIsNotNone(volume_info)
+        book_data = example_book_attrs.copy()
+        book_data["author"] = [example_author_attrs]
+        book_data["isbn"] = [example_isbn_attrs]
+        for key in self.keys:
+            self.assertIn(key, volume_info)
+            self.assertEqual(book_data[key], volume_info[key])
+
+    def test_json_missing_value_returns_none(self):
+        for key in self.keys:
+            temp_volume_info = copy.deepcopy(self.test_json)
+            del temp_volume_info["volumeInfo"][key]
+            self.assertIsNone(self.view.prepare_to_serialize(temp_volume_info))
