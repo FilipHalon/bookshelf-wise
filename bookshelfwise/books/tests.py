@@ -1,9 +1,11 @@
+import json
+
 from django.db import DataError
 from django.test import TestCase, Client, TransactionTestCase, RequestFactory
 from rest_framework.test import APIClient
 
 from books.models import Book, Author, ISBN
-from books.views import BookList
+from books.views import BookList, GoogleBookAPISearch
 
 example_book_attrs = {
     "title": "Unique_Book_Title",
@@ -35,6 +37,7 @@ class RequestFactoryTests(CreateOneInstanceEachTests):
     def setUp(self):
         super().setUp()
         self.factory = RequestFactory()
+        self.req = self.factory.get(self.url)
 
 
 class BookListRequestTypeTestCase(TestCase):
@@ -73,11 +76,13 @@ class BookListViewTestCase(RequestFactoryTests):
         "to_date",
     ]
 
+    def setUp(self):
+        super().setUp()
+        self.view = BookList()
+        self.view.setup(self.req)
+
     def test_context_object_name_books(self):
-        req = self.factory.get(self.url)
-        view = BookList()
-        view.setup(req)
-        self.assertIn("books", view.context_object_name)
+        self.assertIn("books", self.view.context_object_name)
 
 
 class BookModelsTestCase(TransactionTestCase):
@@ -103,19 +108,25 @@ class BookModelsTestCase(TransactionTestCase):
         self.assertTrue(self.book.__str__(), "1")
 
 
-class BookListEndpointTestCase(BookListRequestTypeTestCase):
-    c = APIClient()
+class PrepareToSerialize(RequestFactoryTests):
+    url = "/expand"
+    test_json = json.loads(
+        '{"volumeInfo": {"title": "Unique_Book_Title", "authors": ["Unique_Book_Author"], "publishedDate": "2020-03-01", "industryIdentifiers": [{"identifier": "1A2S3D4F5G6H"}], "pageCount": 123, "imageLinks": {"smallThumbnail": "https://en.wikipedia.org/wiki/Book#/media/File:Liji2_no_bg.png"}, "language": "en"}}'
+    )
+
+    def setUp(self):
+        super().setUp()
+        self.view = GoogleBookAPISearch()
+        self.view.setup(self.req)
+
+    def test_correct_json_successful_conversion(self):
+        pass
+
+
+class BookListEndpointContentTestCase(CreateOneInstanceEachTests):
+    c = Client()
     url = "/api/books"
-    # filter_params = ['title', 'author', 'isbn']
-    #
-    # def test_filter_params_full_phrase_find_object(self):
-    #     r = self.c.get(self.url, {"title": "unique"})
-    #     print(r.context)
-
-
-class BookListEndpointViewTestCase(RequestFactoryTests):
-    filter_params = ["title", "author", "isbn"]
-    search_param = "search"
+    filter_params = ['title', 'author', 'isbn']
 
     def setUp(self):
         super().setUp()
@@ -125,7 +136,29 @@ class BookListEndpointViewTestCase(RequestFactoryTests):
             {"isbn": self.isbn.number},
         ]
 
-    # def test_filter_params_full_phrase_find_object(self):
+    def assert_book_in_data(self, param):
+        r_full = self.c.get(self.url, param)
+        data = r_full.json()["results"][0]["id"]
+        self.assertEqual(self.book.id, data)
+
+    def test_single_filter_param_request_object_found(self):
+        for param in self.query_params:
+            self.assert_book_in_data(param)
+            for key, val in param.items():
+                partial_phrase = {key: val[:-1]}
+                self.assert_book_in_data(partial_phrase)
+                search_phrase = {"search": val}
+                self.assert_book_in_data(search_phrase)
+                partial_search_phrase = {"search": val[:-1]}
+                self.assert_book_in_data(partial_search_phrase)
+
+    # def test_multiple_filter_params_request_object_found(self):
+    #     # test_object_data = {key: val + "_Test" for (key, val) in [param.items() for param in self.query_params]}
+    #     # test_object_data = {print(k, v) for (k, v) in [param.items() for param in self.query_params]}
     #     for param in self.query_params:
-    #         r = self.c.get(self.url, param)
-    #         print(r)
+    #         for key, val in param.items():
+    #             if key == "title":
+    #                 print("tutja")
+    #                 # test_book = Book.objects.create(**example_book_attrs)
+    #                 # test_author = Author.objects.create(test_object_data["author"])
+    #                 # test_isbn = ISBN.objects.create(test_object_data["isbn"])
