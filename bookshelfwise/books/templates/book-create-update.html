@@ -19,4 +19,12 @@
 
 {% block body %}
     {% include 'partials/post-form-render.html' with form=form button_name="Submit" h3_phrase="Update" %}
+    {% if object %}
+    <div class="container d-flex align-items-end flex-column">
+        <form class="form-inline " method="POST">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-dark">Delete</button>
+        </form>
+    </div>
+    {% endif %}
 {% endblock %}

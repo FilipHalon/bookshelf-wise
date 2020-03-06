@@ -70,6 +70,9 @@ class BookCreateUpdate(
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
+        if 'title' not in self.request.POST:
+            self.object.delete()
+            return HttpResponseRedirect(self.get_success_url())
         return super().post(request, *args, **kwargs)
 
 
