@@ -1,8 +1,8 @@
+import copy
 import json
 
 from django.db import DataError
 from django.test import TestCase, Client, TransactionTestCase, RequestFactory
-from rest_framework.test import APIClient
 
 from books.models import Book, Author, ISBN
 from books.views import BookList, GoogleBookAPISearch
@@ -108,11 +108,12 @@ class BookModelsTestCase(TransactionTestCase):
         self.assertTrue(self.book.__str__(), "1")
 
 
-class PrepareToSerialize(RequestFactoryTests):
+class PrepareToSerializeTestCase(RequestFactoryTests):
     url = "/expand"
     test_json = json.loads(
         '{"volumeInfo": {"title": "Unique_Book_Title", "authors": ["Unique_Book_Author"], "publishedDate": "2020-03-01", "industryIdentifiers": [{"identifier": "1A2S3D4F5G6H"}], "pageCount": 123, "imageLinks": {"smallThumbnail": "https://en.wikipedia.org/wiki/Book#/media/File:Liji2_no_bg.png"}, "language": "en"}}'
     )
+    keys = ["title", "author", "publication_date", "isbn", "num_of_pages", "link_to_cover", "publication_lang"]
 
     def setUp(self):
         super().setUp()
@@ -120,7 +121,20 @@ class PrepareToSerialize(RequestFactoryTests):
         self.view.setup(self.req)
 
     def test_correct_json_successful_conversion(self):
-        pass
+        volume_info = self.view.prepare_to_serialize(self.test_json)
+        self.assertIsNotNone(volume_info)
+        book_data = example_book_attrs.copy()
+        book_data["author"] = [example_author_attrs]
+        book_data["isbn"] = [example_isbn_attrs]
+        for key in self.keys:
+            self.assertIn(key, volume_info)
+            self.assertEqual(book_data[key], volume_info[key])
+
+    def test_json_missing_value_returns_none(self):
+        for key in self.keys:
+            temp_volume_info = copy.deepcopy(self.test_json)
+            del temp_volume_info["volumeInfo"][key]
+            self.assertIsNone(self.view.prepare_to_serialize(temp_volume_info))
 
 
 class BookListEndpointContentTestCase(CreateOneInstanceEachTests):
@@ -151,14 +165,3 @@ class BookListEndpointContentTestCase(CreateOneInstanceEachTests):
                 self.assert_book_in_data(search_phrase)
                 partial_search_phrase = {"search": val[:-1]}
                 self.assert_book_in_data(partial_search_phrase)
-
-    # def test_multiple_filter_params_request_object_found(self):
-    #     # test_object_data = {key: val + "_Test" for (key, val) in [param.items() for param in self.query_params]}
-    #     # test_object_data = {print(k, v) for (k, v) in [param.items() for param in self.query_params]}
-    #     for param in self.query_params:
-    #         for key, val in param.items():
-    #             if key == "title":
-    #                 print("tutja")
-    #                 # test_book = Book.objects.create(**example_book_attrs)
-    #                 # test_author = Author.objects.create(test_object_data["author"])
-    #                 # test_isbn = ISBN.objects.create(test_object_data["isbn"])
